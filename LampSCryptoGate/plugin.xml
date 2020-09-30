@@ -4,10 +4,37 @@
 
     <label lang="en">CryptoGate Payment</label>
     <label lang="de">CryptoGate Payment</label>
-
     <version>1.1.0</version>
     <copyright>LAMP solutions GmbH</copyright>
+    <license>MIT</license>
     <author>LAMP solutions GmbH</author>
 
-    <compatibility minVersion="5.2.13"/>
+    <compatibility minVersion="5.2.7"/>
+
+    <changelog version="1.1.0">
+        <changes lang="de">Erstveröffentlichung</changes>
+        <changes lang="en">First release</changes>
+    </changelog>
+    <description>
+        <![CDATA[
+      <h1>Cookie Panel</h1>
+        <div class="wrap" style="display: flex;">
+            <div class="card">
+            <p>Das Plugin CryptoPanel Payment Gateway für Shopware erlaubt die Benutzung des Payment-Gateways CryptoGate, welches auch als OpenSource Variante verfügbar ist.</p><p>Es werden Zahlungsmöglichkeiten für Dash, Bitcoin, Bitcoin Cash und Lightcoin ermöglicht.</p><p>Es kann ein OpenSource Payment Gateway verwendet werden, dass hier im Quelltext verfügbar ist:</p><p>https://github.com/lampsolutions/CryptoGate</p>
+                    </div>
+        </div>
+
+       ]]>
+    </description>
+    <description lang="de">
+        <![CDATA[
+      <h1>Cookie Panel</h1>
+        <div class="wrap" style="display: flex;">
+            <div class="card">
+            <p>Das Plugin CryptoPanel Payment Gateway für Shopware erlaubt die Benutzung des Payment-Gateways CryptoGate, welches auch als OpenSource Variante verfügbar ist.</p><p>Es werden Zahlungsmöglichkeiten für Dash, Bitcoin, Bitcoin Cash und Lightcoin ermöglicht.</p><p>Es kann ein OpenSource Payment Gateway verwendet werden, dass hier im Quelltext verfügbar ist:</p><p>https://github.com/lampsolutions/CryptoGate</p>
+                    </div>
+        </div>
+
+       ]]>
+    </description>
 </plugin>
