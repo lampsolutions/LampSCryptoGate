@@ -1,12 +1,15 @@
 <?php
 
+use Shopware\Components\CSRFWhitelistAware;
 use LampSCryptoGate\Components\CryptoGatePayment\PaymentResponse;
 use LampSCryptoGate\Components\CryptoGatePayment\CryptoGatePaymentService;
 
 
-class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controllers_Frontend_Payment
+class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controllers_Frontend_Payment implements CSRFWhitelistAware
 {
     const PAYMENTSTATUSPAID = 12;
+
+    private $paymentData=[];
 
     public function preDispatch()
     {
@@ -30,6 +33,8 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
      */
     public function indexAction()
     {
+
+
         /**
          * Check if one of the payment methods is selected. Else return to default controller.
          */
@@ -71,6 +76,26 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
         $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
 
         $paymentUrl = $this->getPaymentUrl();
+        Shopware()->PluginLogger()->info("data_before:". json_encode($this->getPaymentData()));
+        Shopware()->PluginLogger()->info("token:". json_encode($this->getPaymentData()));
+
+
+        if(false===$paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL)===false){
+            $errorKey = 'CouldNotConnectToCryptoGate';
+            $baseUrl = $this->Front()->Router()->assemble([
+                'controller' => 'checkout',
+                'action' => 'cart'
+            ]);
+
+
+
+            return $this->redirect(sprintf(
+                '%s?%s=1',
+                $baseUrl,
+                $errorKey
+            ));
+
+        }
 
 
         $version = Shopware()->Config()->get( 'Version' );
@@ -90,7 +115,11 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
 
         /** @var PaymentResponse $response */
         $response = $service->createPaymentResponse($this->Request());
-        $token = $service->createPaymentToken($this->getPaymentData());
+
+        $token = $service->createPaymentToken($this->getPaymentData(false));
+
+        Shopware()->PluginLogger()->info("token:".$token);
+        Shopware()->PluginLogger()->info("data:". json_encode($this->getPaymentData()));
 
 
         if (!$service->isValidToken($response, $token)) {
@@ -102,6 +131,9 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
             $this->forward('cancel');
             return;
         }
+        Shopware()->PluginLogger()->info("status:".$response->status);
+
+
 
         switch ($response->status) {
             case 'Paid':
@@ -167,9 +199,12 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
     /**
      * Creates the url parameters
      */
-    private function getPaymentData()
+    private function getPaymentData($generateToken=true)
     {
 
+        if(!empty($this->paymentData)){
+            return $this->paymentData;
+        }
         $router = $this->Front()->Router();
         $user = $this->getUser();
 
@@ -181,11 +216,18 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
             'action' => 'return',
             'forceSecure' => true,
         ];
+        $callbackParameters = [
+            'action' => 'callback',
+            'forceSecure' => true,
+        ];
         if($version >= '5.6') {
-            $shopware_token = $this->get('shopware\components\cart\paymenttokenservice')->generate();
-            $returnParameters[\Shopware\Components\Cart\PaymentTokenService::TYPE_PAYMENT_TOKEN]=$shopware_token;
-        }
+            if($generateToken) {
+                $shopware_token = $this->get('shopware\components\cart\paymenttokenservice')->generate();
+                $returnParameters[\Shopware\Components\Cart\PaymentTokenService::TYPE_PAYMENT_TOKEN] = $shopware_token;
+                $callbackParameters[\Shopware\Components\Cart\PaymentTokenService::TYPE_PAYMENT_TOKEN] = $shopware_token;
+            }
 
+        }
 
         $parameter = [
             'amount' => $this->getAmount(),
@@ -195,11 +237,13 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
             'payment_id' => $paymentId,
             'email' => @$user['additional']['user']['email'],
             'return_url' => $router->assemble($returnParameters),
-            'callback_url' => $router->assemble(['action' => 'callback', 'forceSecure' => true]),
+            'callback_url' => $router->assemble($callbackParameters),
             'cancel_url' => $router->assemble(['action' => 'cancel', 'forceSecure' => true]),
             'seller_name' => Shopware()->Config()->get('company'),
             'memo' => 'Ihr Einkauf bei '.$_SERVER['SERVER_NAME']
         ];
+
+
 
 
         switch ($this->getPaymentShortName()) {
@@ -216,8 +260,10 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
                 $parameter['selected_currencies'] = 'BCH';
                 break;
         }
+        $this->paymentData=$parameter;
 
         return $parameter;
+
     }
 
     /**
@@ -231,5 +277,11 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
         $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
         $payment_url = $service->createPaymentUrl($this->getPaymentData(),$this->getVersion());
         return $payment_url;
+    }
+
+    public function getWhitelistedCSRFActions() {
+        return [
+            'return','callback','cancel'
+        ];
     }
 }

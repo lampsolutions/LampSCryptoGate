@@ -129,4 +129,33 @@ class LampSCryptoGate extends Plugin
         }
         $em->flush();
     }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            'Enlight_Controller_Action_PreDispatch_Frontend' => ['onFrontend',-100],
+        ];
+    }
+
+    public function onFrontend(\Enlight_Event_EventArgs $args)
+    {
+        $subject = $args->get('subject');
+        $request = $subject->Request();
+        $view = $subject->View();
+
+
+        if ($request->getControllerName() === 'checkout' && $request->getActionName() === 'cart') {
+            $error = $request->has('CouldNotConnectToCryptoGate') ? (int) $request->get('CouldNotConnectToCryptoGate') : null;
+
+            if ($error) {
+                $view->assign('PaymentError', "error");
+            }
+
+        }
+
+
+        $this->container->get('Template')->addTemplateDir(
+            $this->getPath() . '/Resources/views/'
+        );
+    }
 }

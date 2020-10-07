@@ -31,6 +31,7 @@ class CryptoGatePaymentService
      */
     public function isValidToken(PaymentResponse $response, $token)
     {
+        Shopware()->PluginLogger()->info("token:".$token." _ response:".$response->token);
         return hash_equals($token, $response->token);
     }
 
@@ -41,6 +42,8 @@ class CryptoGatePaymentService
     public function createPaymentToken($payment_data)
     {
         unset($payment_data["return_url"]);
+        unset($payment_data["callback_url"]);
+
         return sha1(implode('|', $payment_data));
     }
 
@@ -82,8 +85,7 @@ class CryptoGatePaymentService
         try {
             $response = $client->send($request);
         }catch (RequestException $e) {
-            var_dump($e->getMessage());
-            die();
+            return false;
             //throw new \Exception('[CryptoGate] Gateway Api Error');
         }
 
