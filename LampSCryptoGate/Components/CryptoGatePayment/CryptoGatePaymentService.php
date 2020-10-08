@@ -9,6 +9,7 @@ class CryptoGatePaymentService
 {
     protected static $api_endpoint_verify = '/api/shopware/verify';
     protected static $api_endpoint_create = '/api/shopware/create';
+    private $error=null;
 
     /**
      * @param $request \Enlight_Controller_Request_Request
@@ -48,6 +49,8 @@ class CryptoGatePaymentService
     }
 
     public function createPaymentUrl($parameters=array(),$version) {
+
+
         $api_url = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_url');
 
         if(empty($api_url)) throw new \Exception('[LampsCryptoGate] Missing Api URL');
@@ -85,9 +88,13 @@ class CryptoGatePaymentService
         try {
             $response = $client->send($request);
         }catch (RequestException $e) {
+            Shopware()->PluginLogger()->warn("Cryptogate-Payment-Error:".$e->getMessage());
+            $this->error=$e;
+
             return false;
             //throw new \Exception('[CryptoGate] Gateway Api Error');
         }
+
 
         return json_decode($response->getBody(), true)['payment_url'];
     }
@@ -111,7 +118,10 @@ class CryptoGatePaymentService
         try {
             $response = $client->send($request);
         } catch (\Exception $e) {
-            throw new \Exception('[LampsCryptoGate] Gateway Api Error');
+            Shopware()->PluginLogger()->warn("Cryptogate-Payment-Error:".$e->getMessage());
+            $this->error=$e;
+
+            //throw new \Exception('[LampsCryptoGate] Gateway Api Error');
         }
 
         $verify = json_decode($response->getBody(), true);
@@ -121,5 +131,8 @@ class CryptoGatePaymentService
         }
 
         return false;
+    }
+    public function getLastError(){
+        return $this->error;
     }
 }

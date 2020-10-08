@@ -118,8 +118,6 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
 
         $token = $service->createPaymentToken($this->getPaymentData(false));
 
-        Shopware()->PluginLogger()->info("token:".$token);
-        Shopware()->PluginLogger()->info("data:". json_encode($this->getPaymentData()));
 
 
         if (!$service->isValidToken($response, $token)) {
@@ -131,7 +129,6 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
             $this->forward('cancel');
             return;
         }
-        Shopware()->PluginLogger()->info("status:".$response->status);
 
 
 
