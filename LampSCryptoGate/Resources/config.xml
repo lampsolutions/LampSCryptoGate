@@ -54,5 +54,31 @@
                 <multiSelect>true</multiSelect>
             </options>
         </element>
+        <element type="button">
+            <name>buttonTest</name>
+            <label lang="de">Test Button</label>
+            <label lang="en">Test Button</label>
+            <options>
+                <handler>
+                    <![CDATA[
+                    function() {
+                      Ext.Ajax.request({
+                        url: 'CryptoGatePaymentTest/test',
+                        success: function (response) {
+                          Shopware.Msg.createGrowlMessage(response.statusText, response.responseText)
+                        },
+                        failure: function (response) {
+                          if (response.status === 404) {
+                            Shopware.Msg.createGrowlMessage('Plugin Manager', 'Please activate plugin before testing api.');
+                          } else {
+                            Shopware.Msg.createGrowlMessage(response.statusText, response.responseText)
+                          }
+                        }
+                      });
+                    }
+                    ]]>
+                </handler>
+            </options>
+        </element>
     </elements>
 </config>

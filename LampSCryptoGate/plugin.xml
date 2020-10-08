@@ -20,7 +20,7 @@
       <h1>Cookie Panel</h1>
         <div class="wrap" style="display: flex;">
             <div class="card">
-            <p>Das Plugin CryptoPanel Payment Gateway für Shopware erlaubt die Benutzung des Payment-Gateways CryptoGate, welches auch als OpenSource Variante verfügbar ist.</p><p>Es werden Zahlungsmöglichkeiten für Dash, Bitcoin, Bitcoin Cash und Lightcoin ermöglicht.</p><p>Es kann ein OpenSource Payment Gateway verwendet werden, dass hier im Quelltext verfügbar ist:</p><p>https://github.com/lampsolutions/CryptoGate</p>
+            <p>The plug-in CryptoPanel Payment Gateway for Shopware allows the use of the payment gateway CryptoGate, which is also available as an open source variant.</p><p>https://github.com/lampsolutions/CryptoGate</p>
                     </div>
         </div>
 
@@ -31,7 +31,7 @@
       <h1>Cookie Panel</h1>
         <div class="wrap" style="display: flex;">
             <div class="card">
-            <p>Das Plugin CryptoPanel Payment Gateway für Shopware erlaubt die Benutzung des Payment-Gateways CryptoGate, welches auch als OpenSource Variante verfügbar ist.</p><p>Es werden Zahlungsmöglichkeiten für Dash, Bitcoin, Bitcoin Cash und Lightcoin ermöglicht.</p><p>Es kann ein OpenSource Payment Gateway verwendet werden, dass hier im Quelltext verfügbar ist:</p><p>https://github.com/lampsolutions/CryptoGate</p>
+            <p>Das Plugin CryptoPanel Payment Gateway für Shopware erlaubt die Benutzung des Payment-Gateways CryptoGate, welches auch als OpenSource Variante verfügbar ist.</p><p>Payment options for Dash, Bitcoin, Bitcoin Cash and Lightcoin are made possible.</p><p>An open source payment gateway can be used that is available here in the source code:</p><p>https://github.com/lampsolutions/CryptoGate</p>
                     </div>
         </div>
 
