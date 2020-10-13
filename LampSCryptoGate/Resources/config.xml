@@ -73,7 +73,7 @@
                         }
 
                       Ext.Ajax.request({
-                        url: 'CryptoGatePaymentTest/test?apiToken='+ document.getElementById(data[0]).value + '&apiUrl=' + encodeURI(document.getElementById(data[1]).value),
+                        url: 'CryptoGatePaymentCheck/test?apiToken='+ document.getElementById(data[0]).value + '&apiUrl=' + encodeURI(document.getElementById(data[1]).value),
                         success: function (response) {
                           Shopware.Msg.createGrowlMessage(response.statusText, response.responseText)
                         },

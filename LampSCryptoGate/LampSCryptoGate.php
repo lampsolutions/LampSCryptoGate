@@ -137,7 +137,7 @@ class LampSCryptoGate extends Plugin
     {
         return [
             'Enlight_Controller_Action_PreDispatch_Frontend' => ['onFrontend',-100],
-            'Enlight_Controller_Dispatcher_ControllerPath_Backend_BTCPayPairing' => 'onGetBackendController',
+
         ];
     }
 
@@ -163,13 +163,6 @@ class LampSCryptoGate extends Plugin
         );
     }
 
-    /**
-     * @return string
-     */
-    public function onGetBackendController()
-    {
-        return __DIR__ . '/Controllers/Backend/CryptoGatePaymentCheck.php';
-    }
 
 
 

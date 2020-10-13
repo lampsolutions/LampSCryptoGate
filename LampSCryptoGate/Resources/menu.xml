@@ -13,5 +13,15 @@
             <parent identifiedBy="controller">ConfigurationMenu</parent>
             <onclick>Shopware.ModuleManager.createSimplifiedModule("CryptoGatePaymentCheck", { "title": "CryptoGate Healthcheck" })</onclick>
         </entry>
+        <entry>
+            <name>CryptoGate Test</name>
+            <label lang="en">CryptoGate Healthcheck</label>
+            <label lang="de">CryptoGate Test</label>
+            <controller>CryptoGatePaymentCheck</controller>
+            <action>test</action>
+            <class>sprite-application-block</class>
+            <parent identifiedBy="controller">ConfigurationMenu</parent>
+            <onclick>Shopware.ModuleManager.createSimplifiedModule("CryptoGatePaymentCheck", { "title": "CryptoGate Healthcheck" })</onclick>
+        </entry>
     </entries>
 </menu>

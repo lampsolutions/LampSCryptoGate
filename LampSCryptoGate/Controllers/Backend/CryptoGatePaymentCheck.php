@@ -4,7 +4,8 @@ use LampSCryptoGate\Components\CryptoGatePayment\PaymentResponse;
 use Shopware\Components\CSRFWhitelistAware;
 use Shopware\Components\Model\ModelManager;
 
-class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Controllers_Backend_ExtJs implements CSRFWhitelistAware {
+class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Controllers_Backend_ExtJs implements CSRFWhitelistAware
+{
 
 
     public function preDispatch()
@@ -18,16 +19,15 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
             $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
             $paymentUrl = $this->getPaymentUrl();
 
-            if(false===$paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL)===false){
+            if (false === $paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL) === false) {
                 $this->View()->assign(['error' => "Could not generate Payment-URL please see Logfile for possible Exeptions"]);
-                if($service->getLastError()){
+                if ($service->getLastError()) {
                     $this->View()->assign(['error_message' => $service->getLastError()->getMessage()]);
                     $this->View()->assign(['error_trace' => $service->getLastError()->getTraceAsString()]);
 
                 }
 
-            }
-            else {
+            } else {
 
                 $this->View()->assign(['success' => "Payment-URL could be genereted"]);
                 $this->View()->assign(['payment_url' => $paymentUrl]);
@@ -45,9 +45,10 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
         }
     }
 
-    public function getWhitelistedCSRFActions() {
+    public function getWhitelistedCSRFActions()
+    {
         return [
-            'index',
+            'index','test'
         ];
     }
 
@@ -68,7 +69,7 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
             'callback_url' => "__not_set__",
             'cancel_url' => "__not_set__",
             'seller_name' => Shopware()->Config()->get('company'),
-            'memo' => ''.$_SERVER['SERVER_NAME']
+            'memo' => '' . $_SERVER['SERVER_NAME']
         ];
         return $parameter;
 
@@ -79,15 +80,60 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
     {
         /** @var CryptoGatePaymentService $service */
         $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
-        $payment_url = $service->createPaymentUrl($this->getPaymentData(),$this->getVersion());
+        $payment_url = $service->createPaymentUrl($this->getPaymentData(), $this->getVersion());
         return $payment_url;
     }
 
-    public function getVersion(){
+    public function getVersion()
+    {
         /** @var \Shopware\Components\Plugin $plugin */
         $plugin = $this->get('kernel')->getPlugins()['LampSCryptoGate'];
-        $filename=$plugin->getPath().'/plugin.xml';
+        $filename = $plugin->getPath() . '/plugin.xml';
         $xml = simplexml_load_file($filename);
         return (string)$xml->version;
     }
+
+    public function testAction()
+    {
+
+
+        $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
+
+        if ($_GET["apiToken"]) {
+            $service->setOverrideToken($_GET["apiToken"]);
+        }
+        if ($_GET["apiUrl"]) {
+            $service->setOverrideUrl(urldecode($_GET["apiUrl"]));
+        }
+
+        $paymentUrl = $this->getPaymentUrl();
+
+        $this->View()->setTemplate();
+
+        if (false === $paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL) === false) {
+            $result['response']='Oh no! Something went wrong :(';
+            if ($service->getLastError()) {
+                $result['response']=$service->getLastError()->getMessage();
+            }
+        } else {
+
+            /** @var PaymentResponse $response */
+            $response = new \LampSCryptoGate\Components\CryptoGatePayment\PaymentResponse();
+            $response->transactionId = end(explode("/", $paymentUrl));
+            $response->token = $service->createPaymentToken($this->getPaymentData());
+
+
+            $result['response']='Success!';
+        }
+
+        echo json_encode($result);
+        die();
+
+
+
+    }
+
+
 }
+
+
