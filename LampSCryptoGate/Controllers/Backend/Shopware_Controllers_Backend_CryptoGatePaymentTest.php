@@ -13,7 +13,17 @@ class Shopware_Controllers_Backend_CryptoGatePaymentTest extends \Shopware_Contr
 
     public function testAction()
     {
+
+
         $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
+
+        if($_GET["apiToken"]){
+            $service->setOverrideToken($_GET["apiToken"]);
+        }
+        if($_GET["apiUrl"]){
+            $service->setOverrideUrl(urldecode($_GET["apiUrl"]));
+        }
+
         $paymentUrl = $this->getPaymentUrl();
 
 

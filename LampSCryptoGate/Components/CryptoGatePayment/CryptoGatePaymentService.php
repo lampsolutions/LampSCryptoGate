@@ -11,6 +11,29 @@ class CryptoGatePaymentService
     protected static $api_endpoint_create = '/api/shopware/create';
     private $error=null;
 
+    private $overrideUrl=false;
+    private $overrideToken=false;
+
+    /**
+     * @param $overrideUrl
+     */
+    public function setOverrideUrl($overrideUrl)
+    {
+        $this->overrideUrl = $overrideUrl;
+    }
+
+    /**
+     * @param $overrideToken
+     */
+    public function setOverrideToken($overrideToken)
+    {
+        $this->overrideToken = $overrideToken;
+    }
+
+
+
+
+
     /**
      * @param $request \Enlight_Controller_Request_Request
      * @return PaymentResponse
@@ -32,7 +55,6 @@ class CryptoGatePaymentService
      */
     public function isValidToken(PaymentResponse $response, $token)
     {
-        Shopware()->PluginLogger()->info("token:".$token." _ response:".$response->token);
         return hash_equals($token, $response->token);
     }
 
@@ -52,10 +74,18 @@ class CryptoGatePaymentService
 
 
         $api_url = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_url');
+        if($this->overrideUrl){
+            $api_url=$this->overrideUrl;
+        }
 
         if(empty($api_url)) throw new \Exception('[LampsCryptoGate] Missing Api URL');
 
         $api_key = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_token');
+
+        if($this->overrideToken){
+            $api_key=$this->overrideToken;
+        }
+
         if(empty($api_key)) throw new \Exception('[LampsCryptoGate] Missing Api Token');
 
 
@@ -101,9 +131,15 @@ class CryptoGatePaymentService
 
     public function validatePayment(PaymentResponse $paymentResponse) {
         $api_url = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_url');
+        if($this->overrideUrl){
+            $api_url=$this->overrideUrl;
+        }
         if(empty($api_url)) throw new \Exception('[LampsCryptoGate] Missing Api URL');
 
         $api_key = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_token');
+        if($this->overrideToken){
+            $api_key=$this->overrideToken;
+        }
         if(empty($api_key)) throw new \Exception('[LampsCryptoGate] Missing Api Token');
 
         $client = new \GuzzleHttp\Client();

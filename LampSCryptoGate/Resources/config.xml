@@ -62,8 +62,18 @@
                 <handler>
                     <![CDATA[
                     function() {
+                    	console.log(this);
+                    	element=document.getElementById(this.id);
+
+                         var data = [];
+                        var table = element.closest( 'table' );
+                        var input = table.getElementsByTagName( 'input' );
+                        for ( var z = 0; z < input.length; z++ ) {
+                            data.push( input[z].id );
+                        }
+
                       Ext.Ajax.request({
-                        url: 'CryptoGatePaymentTest/test',
+                        url: 'CryptoGatePaymentTest/test?apiToken='+ document.getElementById(data[0]).value + '&apiUrl=' + encodeURI(document.getElementById(data[1]).value),
                         success: function (response) {
                           Shopware.Msg.createGrowlMessage(response.statusText, response.responseText)
                         },
