@@ -20,16 +20,10 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
             $paymentUrl = $this->getPaymentUrl();
 
             if (false === $paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL) === false) {
-                $this->View()->assign(['error' => "Could not generate Payment-URL please see Logfile for possible Exeptions"]);
-                if ($service->getLastError()) {
-                    $this->View()->assign(['error_message' => $service->getLastError()->getMessage()]);
-                    $this->View()->assign(['error_trace' => $service->getLastError()->getTraceAsString()]);
-
-                }
-
+                $this->View()->assign(['error' => "Could not generate Payment-URL please see logfile for possible Exceptions"]);
             } else {
 
-                $this->View()->assign(['success' => "Payment-URL could be genereted"]);
+                $this->View()->assign(['success' => "Payment-URL could be generated"]);
                 $this->View()->assign(['payment_url' => $paymentUrl]);
 
 
@@ -111,10 +105,8 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
         $this->View()->setTemplate();
 
         if (false === $paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL) === false) {
-            $result['response']='Oh no! Something went wrong :(';
-            if ($service->getLastError()) {
-                $result['response']=$service->getLastError()->getMessage();
-            }
+            header("HTTP/1.0 200 Not Okay");
+            $result = "Could not generate Payment-URL please see logfile for possible Exceptions";
         } else {
 
             /** @var PaymentResponse $response */
@@ -123,14 +115,11 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
             $response->token = $service->createPaymentToken($this->getPaymentData());
 
 
-            $result['response']='Success!';
+            $result='Success!';
         }
 
-        echo json_encode($result);
+        echo $result;
         die();
-
-
-
     }
 
 

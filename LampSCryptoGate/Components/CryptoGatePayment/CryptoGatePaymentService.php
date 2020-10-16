@@ -74,11 +74,11 @@ class CryptoGatePaymentService
 
 
         $api_url = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_url');
-        if($this->overrideUrl){
-            $api_url=$this->overrideUrl;
+        if(empty($api_url)){
+            Shopware()->PluginLogger()->error("Cryptogate-Payment-Error: Missing API Key");
+            return false;
         }
 
-        if(empty($api_url)) throw new \Exception('[LampsCryptoGate] Missing Api URL');
 
         $api_key = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_token');
 
@@ -86,8 +86,10 @@ class CryptoGatePaymentService
             $api_key=$this->overrideToken;
         }
 
-        if(empty($api_key)) throw new \Exception('[LampsCryptoGate] Missing Api Token');
-
+       if(empty($api_key)){
+            Shopware()->PluginLogger()->error("Cryptogate-Payment-Error: Missing API Key");
+            return false;
+        }
 
         $parameters['token'] = $this->createPaymentToken($parameters);
         $parameters['api_key'] = $api_key;
@@ -122,7 +124,6 @@ class CryptoGatePaymentService
             $this->error=$e;
 
             return false;
-            //throw new \Exception('[CryptoGate] Gateway Api Error');
         }
 
 
@@ -134,13 +135,19 @@ class CryptoGatePaymentService
         if($this->overrideUrl){
             $api_url=$this->overrideUrl;
         }
-        if(empty($api_url)) throw new \Exception('[LampsCryptoGate] Missing Api URL');
+        if(empty($api_url)){
+            Shopware()->PluginLogger()->error("Cryptogate-Payment-Error: Missing API Key");
+            return false;
+        }
 
         $api_key = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_token');
         if($this->overrideToken){
             $api_key=$this->overrideToken;
         }
-        if(empty($api_key)) throw new \Exception('[LampsCryptoGate] Missing Api Token');
+        if(empty($api_key)){
+            Shopware()->PluginLogger()->error("Cryptogate-Payment-Error: Missing API Key");
+            return false;
+        }
 
         $client = new \GuzzleHttp\Client();
         $request = $client->createRequest(
@@ -156,8 +163,6 @@ class CryptoGatePaymentService
         } catch (\Exception $e) {
             Shopware()->PluginLogger()->warn("Cryptogate-Payment-Error:".$e->getMessage());
             $this->error=$e;
-
-            //throw new \Exception('[LampsCryptoGate] Gateway Api Error');
         }
 
         $verify = json_decode($response->getBody(), true);

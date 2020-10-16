@@ -62,7 +62,6 @@
                 <handler>
                     <![CDATA[
                     function() {
-                    	console.log(this);
                     	element=document.getElementById(this.id);
 
                          var data = [];
@@ -75,6 +74,7 @@
                       Ext.Ajax.request({
                         url: 'CryptoGatePaymentCheck/test?apiToken='+ document.getElementById(data[0]).value + '&apiUrl=' + encodeURI(document.getElementById(data[1]).value),
                         success: function (response) {
+                          console.log(response);
                           Shopware.Msg.createGrowlMessage(response.statusText, response.responseText)
                         },
                         failure: function (response) {
