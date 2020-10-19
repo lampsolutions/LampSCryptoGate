@@ -8,7 +8,7 @@
 
             {* Content column *}
             <div class="alert--content is--strong">
-                {s name="lampscrytopgate_error" namespace="frontend/lampscrytopgate"}Bei Ihrem Payment Vorgang ist ein Fehler aufgetreten.{/s}
+                {s name="lampscrytopgate_error" namespace="frontend/lampscrytopgate"}Bei Ihrem Payment-Vorgang ist ein Fehler aufgetreten.{/s}
             </div>
         </div>
     </div>

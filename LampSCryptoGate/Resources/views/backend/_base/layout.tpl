@@ -8,19 +8,7 @@
 <body role="document" style="padding-top: 80px">
 
 <!-- Fixed navbar -->
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a id="test" class="navbar-brand" href="{url controller="BTCPayPairing" action="index" __csrf_token=$csrfToken}">CryptoGate Status</a>
-        </div>
-    </div>
-</nav>
+
 
 <div class="container theme-showcase" role="main">
     {block name="content/main"}{/block}

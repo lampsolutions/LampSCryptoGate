@@ -99,7 +99,13 @@ class LampSCryptoGate extends Plugin
      */
     public function uninstall(UninstallContext $context)
     {
+
         $this->setActiveFlag($context->getPlugin()->getPayments(), false);
+        if(!$context->keepUserData()){
+            $folder = $this->container->getParameter('kernel.root_dir') . '/' . $this->getPath() . '/Resources/snippets/' ;
+            $databaseLoader = $this->container->get('shopware.snippet_database_handler');
+            $databaseLoader->removeFromDatabase($folder);
+        }
     }
 
     /**
