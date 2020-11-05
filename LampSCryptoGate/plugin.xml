@@ -4,8 +4,9 @@
 
     <label lang="en">CryptoGate Payment</label>
     <label lang="de">CryptoGate Payment</label>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <copyright>LAMP solutions GmbH</copyright>
+    <link>https://www.lamp-solutions.de</link>
     <license>MIT</license>
     <author>LAMP solutions GmbH</author>
 
@@ -15,24 +16,79 @@
         <changes lang="de">Erstveröffentlichung</changes>
         <changes lang="en">First release</changes>
     </changelog>
+    <changelog version="1.1.1">
+        <changes lang="de">Pluginbeschreibung aktualisiert sowie Benennung einzeler Optionen verbessert.</changes>
+        <changes lang="en">Plugin description updated and also optimized options names-.</changes>
+    </changelog>
     <description>
         <![CDATA[
-      <h1>Cookie Panel</h1>
+      <h1>CryptoGate Payment</h1>
         <div class="wrap" style="display: flex;">
             <div class="card">
-            <p>The plug-in CryptoPanel Payment Gateway for Shopware allows the use of the payment gateway CryptoGate, which is also available as an open source variant.</p><p>https://github.com/lampsolutions/CryptoGate</p>
-                    </div>
+                The CryptoGate Shopware Plugin adds an payment option for crypto currencies Bitcoin, Bitcoin Cash, Dash and Litecoin to the shop. To use the Shopware Plugin you need to connect the shop to an CryptoGate server.<br>
+                <br>
+                To make things easier you can use our CryptoPanel service at <a href="https://www.cryptopanel.de">www.cryptopanel.de</a> to setup your own server.<br>
+                Please note the service is right now available only in german language.<br>
+                If you have questions, then get in touch with us on our website <a href="https://www.cryptopanel.de">www.cryptopanel.de</a>.
+            </div>
         </div>
-
+       <br>
+        <h2>Requirements</h2>
+        <div class="wrap">
+            <div class="card">
+                <ol>
+                    <li><a href="https://www.cryptopanel.de/">CryptoPanel Account</a> oder or selfhosted <a href="https://github.com/lampsolutions/CryptoGate">CryptoGate Server</a></li>
+                    <li>PHP Module CURL</li>
+                </ol>
+            </div>
+        </div>
+        <br>
+        <h2>Quick Start</h2>
+        <div class="wrap">
+            <div class="card">
+                <ol>
+                    <li>Login to your CryptoPanel account</li>
+                    <li>Get the Merchant Api Token and CryptoGate URL from credentials under "CryptoGate" > "Settings"</li>
+                    <li>Configure those option in the plugin settings section inside your shopware backend</li>
+                </ol>
+            </div>
+        </div>
        ]]>
     </description>
     <description lang="de">
         <![CDATA[
-      <h1>Cookie Panel</h1>
-        <div class="wrap" style="display: flex;">
+      <h1>CryptoGate Payment</h1>
+      <div class="wrap" style="display: flex;">
+        <div class="card">
+            Das CryptoGate Payment Shopware Plugin ermöglicht es Kryptowährungen wie Bitcoin, Bitcoin Cash, Dash und Litecoin als Zahlungsmethode im Shop anzubieten.<br>
+            <br>
+            Um das Shopware Plugin zu benutzen, benötigen Sie einen CryptoGate Server.<br>
+            Um einen CryptoGate Server ohne Aufwand und Wissen zu betreiben, können Sie unseren Service <a href="https://www.cryptopanel.de">www.cryptopanel.de</a> verwenden.<br>
+            <br>
+            Bitte beachten Sie dass CryptoPanel nur in deutscher Sprache zur Verfügung steht.<br>
+            Falls Sie Fragen haben, dann nehmen Sie mit uns Kontakt auf unter <a href="https://www.cryptopanel.de">www.cryptopanel.de</a>.
+       </div>
+     </div>
+     <br>
+      <h2>Voraussetzungen</h2>
+        <div class="wrap">
             <div class="card">
-            <p>Das Plugin CryptoPanel Payment Gateway für Shopware erlaubt die Benutzung des Payment-Gateways CryptoGate, welches auch als OpenSource Variante verfügbar ist.</p><p>Payment options for Dash, Bitcoin, Bitcoin Cash and Lightcoin are made possible.</p><p>An open source payment gateway can be used that is available here in the source code:</p><p>https://github.com/lampsolutions/CryptoGate</p>
-                    </div>
+                <ol>
+                    <li><a href="https://www.cryptopanel.de/">CryptoPanel Konto</a> oder ein selbst gehosteten <a href="https://github.com/lampsolutions/CryptoGate">CryptoGate Server</a></li>
+                    <li>PHP Erweiterung CURL</li>
+                </ol>
+            </div>
+        </div>
+        <br>
+        <h2>Schnellstart</h2>
+        <div class="wrap">
+            <div class="card">
+                <ol>
+                    <li>Im CryptoPanel Konto anmelden</li>
+                    <li>Das Merchant Api Token sowie die CryptoGate URL finden Sie unter "CryptoGate" > "Settings" im Bereich Zugangsdaten</li>
+                    <li>Diese Werte nun im Plugin Bereich "Konfiguration" im Shopware Backend einpflegen sowie die Zugangsdaten prüfen.</li>
+                </ol>
+            </div>
         </div>
 
        ]]>

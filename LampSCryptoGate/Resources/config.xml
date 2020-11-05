@@ -21,10 +21,10 @@
         <element type="boolean" scope="locale">
             <name>transmit_customer_data</name>
             <label lang="de">Kundendaten übertragen. Benötigt unter Umständen einen Auftragsdatenverarbeitungsvertrag (=AVV) von Deinem Dienstleister. Solltest Du das CryptoPanel nutzen, kannst Du den AVV hier  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;link&lt;/a&gt; abschließen.</label>
-            <label lang="en">Transmit customer data</label>
+            <label lang="en">Transmit customer data. May require an Data Processing Agreement (DPA) with your service provider.</label>
             <value></value>
             <description lang="de">Benötigt unter Umständen einen Auftragsdatenverarbeitungsvertrag (=AVV) von Deinem Dienstleister. Solltest Du das CryptoPanel nutzen, kannst Du den AVV hier  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;link&lt;/a&gt; abschließen.</description>
-            <description lang="en">Benötigt unter Umständen einen Auftragsdatenverarbeitungsvertrag (=AVV) von Deinem Dienstleister. Solltest Du das CryptoPanel nutzen, kannst Du den AVV hier  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;link&lt;/a&gt; abschließen.</description>
+            <description lang="en">May require an Data Processing Agreement (DPA) with your service provider. In case you are using CryptoPanel, you can request an DPA  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;here&lt;/a&gt;.</description>
         </element>
         <element required="true" type="combo">
             <name>selected_currencies</name>
@@ -56,8 +56,8 @@
         </element>
         <element type="button">
             <name>buttonTest</name>
-            <label lang="de">Test Button</label>
-            <label lang="en">Test Button</label>
+            <label lang="de">Zugangsdaten prüfen</label>
+            <label lang="en">Validate credentials</label>
             <options>
                 <handler>
                     <![CDATA[
