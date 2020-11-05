@@ -18,7 +18,7 @@
     </changelog>
     <changelog version="1.1.1">
         <changes lang="de">Pluginbeschreibung aktualisiert sowie Benennung einzeler Optionen verbessert.</changes>
-        <changes lang="en">Plugin description updated and also optimized options names-.</changes>
+        <changes lang="en">Plugin description updated and also optimized options names.</changes>
     </changelog>
     <description>
         <![CDATA[
@@ -62,11 +62,11 @@
         <div class="card">
             Das CryptoGate Payment Shopware Plugin ermöglicht es Kryptowährungen wie Bitcoin, Bitcoin Cash, Dash und Litecoin als Zahlungsmethode im Shop anzubieten.<br>
             <br>
-            Um das Shopware Plugin zu benutzen, benötigen Sie einen CryptoGate Server.<br>
-            Um einen CryptoGate Server ohne Aufwand und Wissen zu betreiben, können Sie unseren Service <a href="https://www.cryptopanel.de">www.cryptopanel.de</a> verwenden.<br>
+            Um das Shopware Plugin zu benutzen, benötigst du einen CryptoGate Server.<br>
+            Um einen CryptoGate Server ohne Aufwand und Wissen zu betreiben, kannst du unseren Service <a href="https://www.cryptopanel.de">www.cryptopanel.de</a> verwenden.<br>
             <br>
-            Bitte beachten Sie dass CryptoPanel nur in deutscher Sprache zur Verfügung steht.<br>
-            Falls Sie Fragen haben, dann nehmen Sie mit uns Kontakt auf unter <a href="https://www.cryptopanel.de">www.cryptopanel.de</a>.
+            Bitte beachte dass CryptoPanel nur in deutscher Sprache zur Verfügung steht.<br>
+            Falls Du Fragen oder Verbesserungswünsche hast, erreichst du uns unter <a href="https://www.cryptopanel.de">www.cryptopanel.de</a>.
        </div>
      </div>
      <br>
@@ -85,7 +85,7 @@
             <div class="card">
                 <ol>
                     <li>Im CryptoPanel Konto anmelden</li>
-                    <li>Das Merchant Api Token sowie die CryptoGate URL finden Sie unter "CryptoGate" > "Settings" im Bereich Zugangsdaten</li>
+                    <li>Das Merchant Api Token sowie die CryptoGate URL findest du unter "CryptoGate" > "Settings" im Bereich Zugangsdaten</li>
                     <li>Diese Werte nun im Plugin Bereich "Konfiguration" im Shopware Backend einpflegen sowie die Zugangsdaten prüfen.</li>
                 </ol>
             </div>
