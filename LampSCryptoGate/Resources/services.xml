@@ -3,14 +3,16 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="crypto_gate.crypto_gate_payment_service"
-                 class="LampSCryptoGate\Components\CryptoGatePayment\CryptoGatePaymentService">
+        <service public="true" id="crypto_gate.crypto_gate_payment_service"
+                 class="LampSCryptoGate\Components\CryptoGatePayment\CryptoGatePaymentService"
+                >
+            <argument type="service" id="pluginlogger"/>
         </service>
-        <service id="crypto_gate.crypto_gate_payment_service_test" class="LampSCryptoGate\Controllers\Backend\Shopware_Controllers_Backend_CryptoGatePaymentTest">
+        <service public="true" id="crypto_gate.crypto_gate_payment_service_test" class="LampSCryptoGate\Controllers\Backend\Shopware_Controllers_Backend_CryptoGatePaymentTest">
             <argument type="service" id="http_client"/>
             <tag name="shopware.controller" module="backend" controller="CryptoGatePaymentTest"/>
         </service>
-        <service id="crypto_gate.subscriber.cache_registration" class="LampSCryptoGate\Subscriber\CacheSubscriber">
+        <service public="true" id="crypto_gate.subscriber.cache_registration" class="LampSCryptoGate\Subscriber\CacheSubscriber">
             <argument>%lamp_s_crypto_gate.plugin_dir%</argument>
             <argument type="service" id="shopware.cache_manager"/>
             <tag name="shopware.event_subscriber"/>

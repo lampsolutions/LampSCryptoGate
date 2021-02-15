@@ -76,8 +76,8 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
         $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
 
         $paymentUrl = $this->getPaymentUrl();
-        Shopware()->PluginLogger()->info("data_before:". json_encode($this->getPaymentData()));
-        Shopware()->PluginLogger()->info("token:". json_encode($this->getPaymentData()));
+        $service->logger->info("data_before:". json_encode($this->getPaymentData()));
+        $service->logger->info("token:". json_encode($this->getPaymentData()));
 
 
         if(false===$paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL)===false){
@@ -86,7 +86,6 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
                 'controller' => 'checkout',
                 'action' => 'cart'
             ]);
-
 
 
             return $this->redirect(sprintf(
@@ -219,7 +218,7 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
         ];
         if($version >= '5.6') {
             if($generateToken) {
-                $shopware_token = $this->get('shopware\components\cart\paymenttokenservice')->generate();
+                $shopware_token = $this->get('Shopware\Components\Cart\PaymentTokenService')->generate();
                 $returnParameters[\Shopware\Components\Cart\PaymentTokenService::TYPE_PAYMENT_TOKEN] = $shopware_token;
                 $callbackParameters[\Shopware\Components\Cart\PaymentTokenService::TYPE_PAYMENT_TOKEN] = $shopware_token;
             }

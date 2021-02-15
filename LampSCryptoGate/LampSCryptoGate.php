@@ -164,7 +164,7 @@ class LampSCryptoGate extends Plugin
         }
 
 
-        $this->container->get('Template')->addTemplateDir(
+        $this->container->get('template')->addTemplateDir(
             $this->getPath() . '/Resources/views/'
         );
     }

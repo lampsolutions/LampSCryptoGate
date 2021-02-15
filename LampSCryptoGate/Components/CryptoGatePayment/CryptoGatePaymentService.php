@@ -4,15 +4,21 @@ namespace LampSCryptoGate\Components\CryptoGatePayment;
 
 
 use GuzzleHttp\Exception\RequestException;
+use http\Client\Request;
 
 class CryptoGatePaymentService
 {
     protected static $api_endpoint_verify = '/api/shopware/verify';
-    protected static $api_endpoint_create = '/api/shopware/create';
+    protected static $api_endpoint_create = 'api/shopware/create';
     private $error=null;
 
     private $overrideUrl=false;
     private $overrideToken=false;
+
+    /**
+     * @var $logger Logger
+     */
+    public $logger;
 
     /**
      * @param $overrideUrl
@@ -30,8 +36,13 @@ class CryptoGatePaymentService
         $this->overrideToken = $overrideToken;
     }
 
-
-
+    /**
+     * @param $logger \Shopware\Components\Logger
+     */
+    public function __construct(\Shopware\Components\Logger $logger)
+    {
+        $this->logger = $logger;
+    }
 
 
     /**
@@ -75,7 +86,7 @@ class CryptoGatePaymentService
 
         $api_url = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_url');
         if(empty($api_url)){
-            Shopware()->PluginLogger()->error("Cryptogate-Payment-Error: Missing API Key");
+            $this->logger->error("Cryptogate-Payment-Error: Missing API Key");
             return false;
         }
 
@@ -109,19 +120,18 @@ class CryptoGatePaymentService
         }
 
         $client = new \GuzzleHttp\Client();
-        $request = $client->createRequest(
-            'POST',
-            $api_url.$this::$api_endpoint_create,
-            [
-                'body' => $parameters,
-            ]
-        );
+
+        $version = Shopware()->Config()->get( 'Version' );
+        $body_name="form_params";
+        if($version < '5.7') {
+           $body_name="body";
+        }
 
         try {
-            $response = $client->send($request);
+            $response = $client->post($api_url.$this::$api_endpoint_create,[$body_name => $parameters]);
         }catch (RequestException $e) {
-            Shopware()->PluginLogger()->warn("Cryptogate-Payment-Error:".$e->getMessage());
-            $this->error=$e;
+            $this->logger->warning("Cryptogate-Payment-Error:".$e->getMessage());
+           // $this->error=$e;
 
             return false;
         }
@@ -136,7 +146,7 @@ class CryptoGatePaymentService
             $api_url=$this->overrideUrl;
         }
         if(empty($api_url)){
-            Shopware()->PluginLogger()->error("Cryptogate-Payment-Error: Missing API Key");
+            $this->logger->error("Cryptogate-Payment-Error: Missing API Key");
             return false;
         }
 
@@ -145,23 +155,27 @@ class CryptoGatePaymentService
             $api_key=$this->overrideToken;
         }
         if(empty($api_key)){
-            Shopware()->PluginLogger()->error("Cryptogate-Payment-Error: Missing API Key");
+            $this->logger->error("Cryptogate-Payment-Error: Missing API Key");
             return false;
         }
 
         $client = new \GuzzleHttp\Client();
-        $request = $client->createRequest(
-            'POST',
-            $api_url.$this::$api_endpoint_verify,
-            [
-                'body' => [ 'uuid' => $paymentResponse->transactionId, 'token' => $paymentResponse->token, 'api_key' => $api_key ],
-            ]
-        );
+
+        $version = Shopware()->Config()->get( 'Version' );
+        $body_name="form_params";
+        if($version < '5.7') {
+            $body_name="body";
+        }
 
         try {
-            $response = $client->send($request);
+            $response = $client->post($api_url.$this::$api_endpoint_verify,
+                [$body_name => [
+                    'uuid' => $paymentResponse->transactionId,
+                    'token' => $paymentResponse->token,
+                    'api_key' => $api_key ]
+                ]);
         } catch (\Exception $e) {
-            Shopware()->PluginLogger()->warn("Cryptogate-Payment-Error:".$e->getMessage());
+            $this->logger->warning("Cryptogate-Payment-Error:".$e->getMessage());
             $this->error=$e;
         }
 
