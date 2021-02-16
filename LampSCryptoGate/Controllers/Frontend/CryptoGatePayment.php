@@ -34,7 +34,6 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
     public function indexAction()
     {
 
-
         /**
          * Check if one of the payment methods is selected. Else return to default controller.
          */
@@ -78,7 +77,6 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
         $paymentUrl = $this->getPaymentUrl();
         $service->logger->info("data_before:". json_encode($this->getPaymentData()));
         $service->logger->info("token:". json_encode($this->getPaymentData()));
-
 
         if(false===$paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL)===false){
             $errorKey = 'CouldNotConnectToCryptoGate';
