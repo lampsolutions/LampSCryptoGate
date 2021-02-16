@@ -105,8 +105,7 @@ class CryptoGatePaymentService
         $parameters['token'] = $this->createPaymentToken($parameters);
         $parameters['api_key'] = $api_key;
         $parameters["plugin_version"] = $version;
-
-
+        $parameters["shopware_version"]=Shopware()->Config()->get( 'Version' );
 
         if(empty($parameters['selected_currencies'])) {
             $parameters['selected_currencies'] = implode(",",
