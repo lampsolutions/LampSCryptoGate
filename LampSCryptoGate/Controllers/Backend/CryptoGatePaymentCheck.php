@@ -16,20 +16,23 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
     public function indexAction()
     {
         if ($_POST["check_now"] == "check_now") {
+            /**
+             * @var $service \LampSCryptoGate\Components\CryptoGatePayment\CryptoGatePaymentService
+             */
             $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
-            $paymentUrl = $this->getPaymentUrl();
+            $paymentData = $this->getPayment();
 
-            if (false === $paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL) === false) {
+            if (false === $paymentData || filter_var($paymentData['payment_url'], FILTER_VALIDATE_URL) === false) {
                 $this->View()->assign(['error' => "Could not generate Payment-URL please see logfile for possible Exceptions"]);
             } else {
 
                 $this->View()->assign(['success' => "Payment-URL could be generated"]);
-                $this->View()->assign(['payment_url' => $paymentUrl]);
+                $this->View()->assign(['payment_url' => $paymentData['payment_url']]);
 
 
                 /** @var PaymentResponse $response */
                 $response = new \LampSCryptoGate\Components\CryptoGatePayment\PaymentResponse();
-                $response->transactionId = end(explode("/", $paymentUrl));
+                $response->transactionId = $paymentData['uuid'];
                 $response->token = $service->createPaymentToken($this->getPaymentData());
 
 
@@ -61,6 +64,7 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
             'email' => "test@example.com",
             'return_url' => "__not_set__",
             'callback_url' => "__not_set__",
+            'ipn_url' => "__not_set__",
             'cancel_url' => "__not_set__",
             'seller_name' => Shopware()->Config()->get('company'),
             'memo' => '' . $_SERVER['SERVER_NAME']
@@ -70,12 +74,12 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
     }
 
 
-    protected function getPaymentUrl()
+    protected function getPayment()
     {
-        /** @var CryptoGatePaymentService $service */
+        /** @var \LampSCryptoGate\Components\CryptoGatePayment\CryptoGatePaymentService $service */
         $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
-        $payment_url = $service->createPaymentUrl($this->getPaymentData(), $this->getVersion());
-        return $payment_url;
+        $paymentData = $service->createPayment($this->getPaymentData(), $this->getVersion());
+        return $paymentData;
     }
 
     public function getVersion()
@@ -100,18 +104,18 @@ class Shopware_Controllers_Backend_CryptoGatePaymentCheck extends \Shopware_Cont
             $service->setOverrideUrl(urldecode($_GET["apiUrl"]));
         }
 
-        $paymentUrl = $this->getPaymentUrl();
+        $paymentData = $this->getPayment();
 
         $this->View()->setTemplate();
 
-        if (false === $paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL) === false) {
+        if (false === $paymentData || filter_var($paymentData['payment_url'], FILTER_VALIDATE_URL) === false) {
             header("HTTP/1.0 200 Not Okay");
             $result = "Could not generate Payment-URL please see logfile for possible Exceptions";
         } else {
 
             /** @var PaymentResponse $response */
             $response = new \LampSCryptoGate\Components\CryptoGatePayment\PaymentResponse();
-            $response->transactionId = end(explode("/", $paymentUrl));
+            $response->transactionId = $paymentData['uuid'];
             $response->token = $service->createPaymentToken($this->getPaymentData());
 
 

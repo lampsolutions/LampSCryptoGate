@@ -2,6 +2,7 @@
 
 namespace LampSCryptoGate;
 
+use Shopware\Bundle\AttributeBundle\Service\CrudService;
 use Shopware\Components\Plugin;
 use Shopware\Components\Plugin\Context\ActivateContext;
 use Shopware\Components\Plugin\Context\DeactivateContext;
@@ -18,6 +19,13 @@ class LampSCryptoGate extends Plugin
      */
     public function install(InstallContext $context)
     {
+        /** @var CrudService $crudService */
+        $crudService = $this->container->get('shopware_attribute.crud_service');
+        $crudService->update('s_order_attributes', 'lampscryptogate_token', 'string');
+        $crudService->update('s_order_attributes', 'lampscryptogate_uuid', 'string');
+        $crudService->update('s_order_attributes', 'lampscryptogate_url', 'string');
+        Shopware()->Models()->generateAttributeModels(array('s_order_attributes'));
+
         /** @var \Shopware\Components\Plugin\PaymentInstaller $installer */
         $installer = $this->container->get('shopware.plugin_payment_installer');
 
@@ -97,8 +105,13 @@ class LampSCryptoGate extends Plugin
     /**
      * @param UninstallContext $context
      */
-    public function uninstall(UninstallContext $context)
-    {
+    public function uninstall(UninstallContext $context) {
+        /** @var CrudService $crudService */
+        $crudService = $this->container->get('shopware_attribute.crud_service');
+        $crudService->delete('s_order_attributes', 'lampscryptogate_token');
+        $crudService->delete('s_order_attributes', 'lampscryptogate_uuid');
+        $crudService->delete('s_order_attributes', 'lampscryptogate_url');
+        Shopware()->Models()->generateAttributeModels(array('s_order_attributes'));
 
         $this->setActiveFlag($context->getPlugin()->getPayments(), false);
         if(!$context->keepUserData()){
@@ -139,11 +152,9 @@ class LampSCryptoGate extends Plugin
         $em->flush();
     }
 
-    public static function getSubscribedEvents()
-    {
+    public static function getSubscribedEvents() {
         return [
             'Enlight_Controller_Action_PreDispatch_Frontend' => ['onFrontend',-100],
-
         ];
     }
 

@@ -12,6 +12,9 @@
             <argument type="service" id="http_client"/>
             <tag name="shopware.controller" module="backend" controller="CryptoGatePaymentTest"/>
         </service>
+        <service public="true" id="crypto_gate.subscriber.onordermail" class="LampSCryptoGate\Subscriber\OnOrderMailSubscriber">
+            <tag name="shopware.event_subscriber"/>
+        </service>
         <service public="true" id="crypto_gate.subscriber.cache_registration" class="LampSCryptoGate\Subscriber\CacheSubscriber">
             <argument>%lamp_s_crypto_gate.plugin_dir%</argument>
             <argument type="service" id="shopware.cache_manager"/>

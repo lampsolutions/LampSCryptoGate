@@ -3,14 +3,6 @@
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/5.3/engine/Shopware/Components/Plugin/schema/config.xsd">
     <elements>
         <element required="true" type="text" scope="locale">
-            <name>api_token</name>
-            <label lang="de">Payment Gateway Api Token</label>
-            <label lang="en">Payment Gateway Api Token</label>
-            <value></value>
-            <description lang="de">Ihren Api Schlüssel finden Sie im Backend Bereich von CryptoPanel.</description>
-            <description lang="en">You will find your Api Key in the CryptoPanel Backend Area.</description>
-        </element>
-        <element required="true" type="text" scope="locale">
             <name>api_url</name>
             <label lang="de">Payment Gateway URL</label>
             <label lang="en">Payment Gateway URL</label>
@@ -18,13 +10,13 @@
             <description lang="de">Ihre Gateway URL finden Sie im Backend Bereich von CryptoPanel.</description>
             <description lang="en">You will find your Gateway URL in the CryptoPanel Backend Area.</description>
         </element>
-        <element type="boolean" scope="locale">
-            <name>transmit_customer_data</name>
-            <label lang="de">Kundendaten übertragen. Benötigt unter Umständen einen Auftragsdatenverarbeitungsvertrag (=AVV) von Deinem Dienstleister. Solltest Du das CryptoPanel nutzen, kannst Du den AVV hier  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;link&lt;/a&gt; abschließen.</label>
-            <label lang="en">Transmit customer data. May require an Data Processing Agreement (DPA) with your service provider.</label>
+        <element required="true" type="text" scope="locale">
+            <name>api_token</name>
+            <label lang="de">Payment Gateway Api Token</label>
+            <label lang="en">Payment Gateway Api Token</label>
             <value></value>
-            <description lang="de">Benötigt unter Umständen einen Auftragsdatenverarbeitungsvertrag (=AVV) von Deinem Dienstleister. Solltest Du das CryptoPanel nutzen, kannst Du den AVV hier  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;link&lt;/a&gt; abschließen.</description>
-            <description lang="en">May require an Data Processing Agreement (DPA) with your service provider. In case you are using CryptoPanel, you can request an DPA  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;here&lt;/a&gt;.</description>
+            <description lang="de">Ihren Api Schlüssel finden Sie im Backend Bereich von CryptoPanel.</description>
+            <description lang="en">You will find your Api Key in the CryptoPanel Backend Area.</description>
         </element>
         <element required="true" type="combo">
             <name>selected_currencies</name>
@@ -54,6 +46,46 @@
                 <multiSelect>true</multiSelect>
             </options>
         </element>
+        <element type="boolean" scope="locale">
+            <name>wait_in_block</name>
+            <label lang="de">Double Spend Schutz</label>
+            <label lang="en">Double spend Protection</label>
+            <value></value>
+            <description lang="de">Die Zahlung gilt erst als komplett bezahlt, wenn die Transaktion in der Blockchain gespeichert wurde (empfohlen).</description>
+            <description lang="en">The payment is not considered "completely paid" until the transaction has been stored in the blockchain (recommended).</description>
+        </element>
+        <element type="boolean" scope="locale">
+            <name>pay_now_btn</name>
+            <label lang="de">Bestellbestätigung Bezahlen Button</label>
+            <label lang="en">Order confirmation payment button</label>
+            <value></value>
+            <description lang="de">Zeige in der Bestellbestätigung einen Button zum Bezahlen der Kryptozahlung an.</description>
+            <description lang="en">Display a crypto payment button in the order confirmation.</description>
+        </element>
+        <element type="boolean" scope="locale">
+            <name>send_paid_email</name>
+            <label lang="de">Zahlungsstatus "Komplett bezahlt" E-Mail</label>
+            <label lang="en">Payment status "completely paid" email</label>
+            <value></value>
+            <description lang="de">Versendet eine E-Mail an den Kunden, wenn der Zahlungsstatus der Bestellung sich auf "Komplett bezahlt" ändert.</description>
+            <description lang="en">Sends an email to the customer when the payment status of the order changes to "Completely paid".</description>
+        </element>
+        <element type="boolean" scope="locale">
+            <name>pay_iframe</name>
+            <label lang="de">Iframe Zahlseite</label>
+            <label lang="en">Iframe payment page</label>
+            <value></value>
+            <description lang="de">Die Zahlseite als Iframe auf der Webseite integrieren</description>
+            <description lang="en">Integrate the payment page as an iframe on the website</description>
+        </element>
+        <element type="boolean" scope="locale">
+            <name>transmit_customer_data</name>
+            <label lang="de">Kundendaten übertragen</label>
+            <label lang="en">Transmit customer data</label>
+            <value></value>
+            <description lang="de">Benötigt unter Umständen einen Auftragsdatenverarbeitungsvertrag (=AVV) von Deinem Dienstleister. Solltest Du das CryptoPanel nutzen, kannst Du den AVV hier  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;link&lt;/a&gt; abschließen.</description>
+            <description lang="en">May require an Data Processing Agreement (DPA) with your service provider. In case you are using CryptoPanel, you can request an DPA  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;here&lt;/a&gt;.</description>
+        </element>
         <element type="button">
             <name>buttonTest</name>
             <label lang="de">Zugangsdaten prüfen</label>
@@ -72,7 +104,7 @@
                         }
 
                       Ext.Ajax.request({
-                        url: 'CryptoGatePaymentCheck/test?apiToken='+ document.getElementById(data[0]).value + '&apiUrl=' + encodeURI(document.getElementById(data[1]).value),
+                        url: 'CryptoGatePaymentCheck/test?apiToken='+ document.getElementById(data[1]).value + '&apiUrl=' + encodeURI(document.getElementById(data[0]).value),
                         success: function (response) {
                           console.log(response);
                           Shopware.Msg.createGrowlMessage(response.statusText, response.responseText)

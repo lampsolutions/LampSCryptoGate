@@ -5,14 +5,18 @@ use LampSCryptoGate\Components\CryptoGatePayment\PaymentResponse;
 use LampSCryptoGate\Components\CryptoGatePayment\CryptoGatePaymentService;
 
 
-class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controllers_Frontend_Payment implements CSRFWhitelistAware
-{
-    const PAYMENTSTATUSPAID = 12;
+class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controllers_Frontend_Payment implements CSRFWhitelistAware {
 
     private $paymentData=[];
 
-    public function preDispatch()
-    {
+    /**
+     * @var $cryptoGateService CryptoGatePaymentService
+     */
+    private $cryptoGateService;
+
+    public function preDispatch() {
+        $this->cryptoGateService = Shopware()->Container()->get('crypto_gate.crypto_gate_payment_service');
+
         /** @var \Shopware\Components\Plugin $plugin */
         $plugin = $this->get('kernel')->getPlugins()['LampSCryptoGate'];
         $this->get('template')->addTemplateDir($plugin->getPath() . '/Resources/views/');
@@ -26,122 +30,111 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
         return (string)$xml->version;
     }
 
-    /**
-     * Index action method.
-     *
-     * Forwards to the correct action.
-     */
-    public function indexAction()
-    {
+    public function indexAction() {
+        $iframeEnabled = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'pay_iframe');
+        $action = $iframeEnabled ? 'gateway' : 'direct';
 
-        /**
-         * Check if one of the payment methods is selected. Else return to default controller.
-         */
         switch ($this->getPaymentShortName()) {
             case 'cryptogate_payment':
-                return $this->redirect(['action' => 'direct', 'forceSecure' => true]);
             case 'cryptogate_payment_btc':
-                return $this->redirect(['action' => 'direct', 'forceSecure' => true]);
             case 'cryptogate_payment_ltc':
-                return $this->redirect(['action' => 'direct', 'forceSecure' => true]);
             case 'cryptogate_payment_dash':
-                return $this->redirect(['action' => 'direct', 'forceSecure' => true]);
             case 'cryptogate_payment_bch':
-                return $this->redirect(['action' => 'direct', 'forceSecure' => true]);
+                $this->redirect(['action' => $action, 'forceSecure' => true]);
+                break;
             default:
-                return $this->redirect(['controller' => 'checkout']);
+                $this->redirect(['controller' => 'checkout']);
+                break;
         }
     }
 
-    /**
-     * Gateway action method.
-     *
-     * Collects the payment information and transmit it to the payment provider.
-     */
-    public function gatewayAction()
-    {
-        $paymentUrl = $this->getPaymentUrl();
+    public function gatewayAction() {
+        $orderDetails = $this->createOrder();
+        if(!$orderDetails) return;
 
-        $this->redirect($paymentUrl);
+        $this->redirect(['action' => 'gatewayFrame', 'forceSecure' => true, 'uuid' => $orderDetails['uuid']]);
     }
 
-    /**
-     * Direct action method.
-     *
-     * Collects the payment information and transmits it to the payment provider.
-     */
-    public function directAction()
-    {
-        $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
-
-        $paymentUrl = $this->getPaymentUrl();
-        $service->logger->info("data_before:". json_encode($this->getPaymentData()));
-        $service->logger->info("token:". json_encode($this->getPaymentData()));
-
-        if(false===$paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL)===false){
-            $errorKey = 'CouldNotConnectToCryptoGate';
-            $baseUrl = $this->Front()->Router()->assemble([
-                'controller' => 'checkout',
-                'action' => 'cart'
-            ]);
-
-
-            return $this->redirect(sprintf(
-                '%s?%s=1',
-                $baseUrl,
-                $errorKey
-            ));
-
-        }
-
-
-        $version = Shopware()->Config()->get( 'Version' );
-        if($version < '5.6') {
-            $this->saveOrder(
-                end(explode("/", $paymentUrl)),
-                $service->createPaymentToken($this->getPaymentData())
-            );
-        }
-        $this->redirect($paymentUrl);
-    }
-
-    public function callbackAction(){
-
-        /** @var CryptoGatePaymentService $service */
-        $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
-
-        /** @var PaymentResponse $response */
-        $response = $service->createPaymentResponse($this->Request());
-
-        $token = $service->createPaymentToken($this->getPaymentData(false));
-
-
-
-        if (!$service->isValidToken($response, $token)) {
-            $this->forward('cancel');
-            return;
-        }
-
-        if (!$service->validatePayment($response)) {
-            $this->forward('cancel');
+    public function gatewayFrameAction() {
+        $orderDetails = $this->getCryptoOrderDetailsByUuid($this->request()->get('uuid'));
+        if(!$orderDetails) {
+            $this->handlePaymentError('OrderNotFound');
             return;
         }
 
 
+        $this->View()->assign('gatewayUrl', $orderDetails['url']);
+    }
 
-        switch ($response->status) {
-            case 'Paid':
-                $this->saveOrder(
-                    $response->transactionId,
-                    $response->token,
-                    self::PAYMENTSTATUSPAID
-                );
-                $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
-                break;
-            default:
-                $this->forward('cancel');
-                break;
+    private function createOrder() {
+        $paymentToken = $this->cryptoGateService->createPaymentToken($this->getPaymentData());
+        $paymentData = $this->createCryptoPayment();
+        if(!$paymentData){
+            $this->handlePaymentError('CouldNotConnectToCryptoGate');
+            return false;
         }
+
+        $orderNumber = $this->saveOrder(
+            $paymentData['uuid'],
+            $paymentToken
+        );
+
+        if(!$orderNumber) {
+            $this->handlePaymentError('OrderCouldNotBeCreated');
+            return false;
+        }
+
+        if(!$this->storeCryptoPaymentDetailsToOrder($orderNumber, $paymentToken, $paymentData['uuid'], $paymentData['payment_url'])) {
+            $this->handlePaymentError('OrderAttributesCouldNotBeStored');
+            return false;
+        }
+
+        return array(
+            'orderNumber' => $orderNumber,
+            'token' => $paymentToken,
+            'uuid' => $paymentData['uuid'],
+            'url' => $paymentData['payment_url']
+        );
+    }
+
+    public function directAction() {
+        $orderDetails = $this->createOrder();
+        if(!$orderDetails) return;
+        $this->redirect($orderDetails['url']);
+    }
+
+    private function handlePaymentError($errorKey) {
+        $baseUrl = $this->Front()->Router()->assemble([
+            'controller' => 'checkout',
+            'action' => 'cart'
+        ]);
+
+        $this->redirect(sprintf(
+            '%s?%s=1',
+            $baseUrl,
+            $errorKey
+        ));
+    }
+
+    private function storeCryptoPaymentDetailsToOrder($orderNumber, $paymentToken, $paymentUuid, $paymentUrl) {
+        $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')->findOneBy(array('number' => $orderNumber));
+        if(!$order) return false;
+        $orderAttributeModel = Shopware()->Models()->getRepository('Shopware\Models\Attribute\Order')->findOneBy(array('orderId' => $order->getId()));
+        if(!$orderAttributeModel) return false;
+
+        if ($orderAttributeModel instanceof \Shopware\Models\Attribute\Order) {
+            $orderAttributeModel->setLampscryptogateToken($paymentToken);
+            $orderAttributeModel->setLampscryptogateUuid($paymentUuid);
+            $orderAttributeModel->setLampscryptogateUrl($paymentUrl);
+            Shopware()->Models()->persist($orderAttributeModel);
+            Shopware()->Models()->flush();
+            return true;
+        }
+        return false;
+    }
+
+    public function callbackAction() {
+        $this->forward('notify');
     }
 
     /**
@@ -149,45 +142,90 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
      *
      * Reads the transactionResult and represents it for the customer.
      */
-    public function returnAction()
-    {
-        /** @var CryptoGatePaymentService $service */
-        $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
-
+    public function returnAction() {
         /** @var PaymentResponse $response */
-        $response = $service->createPaymentResponse($this->Request());
-        $token = $service->createPaymentToken($this->getPaymentData());
+        $response = $this->cryptoGateService->createPaymentResponse($this->Request());
 
-        if (!$service->isValidToken($response, $token)) {
+        if(empty($response->token) || empty($response->transactionId)) {
+            $this->jsonCallbackResponse(array('status' => -1, 'msg' => 'Not a valid notify request'));
+            return;
+        }
+
+        $orderDetails = $this->getCryptoOrderDetailsByUuid($response->transactionId);
+
+
+        if(empty($orderDetails)) {
             $this->forward('cancel');
             return;
         }
 
-        if (!$service->validatePayment($response)) {
+        if (!$this->cryptoGateService->isValidToken($response, $orderDetails['token'])) {
             $this->forward('cancel');
             return;
         }
 
-        switch ($response->status) {
-            case 'Paid':
-                $this->saveOrder(
-                    $response->transactionId,
-                    $response->token,
-                    self::PAYMENTSTATUSPAID
-                );
-                $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
-                break;
-            default:
-                $this->forward('cancel');
-                break;
+        if (!$this->cryptoGateService->validatePayment($response)) {
+            $this->forward('cancel');
+            return;
         }
+
+        if($response->status != 'Paid') {
+            $this->forward('cancel');
+            return;
+        }
+
+        $paymentState = $response->inBlock ? $this->cryptoGateService->getPaymentStatusInBlock() : $this->cryptoGateService->getPaymentStatusMemPool();
+
+        $emailSendEnabled = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'send_paid_email');
+        $sendEmail = $paymentState == $this->cryptoGateService->getPaymentStatusInBlock() && $emailSendEnabled;
+        $this->savePaymentStatus($response->transactionId, $response->token, $paymentState, $sendEmail);
+
+        $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
     }
 
     /**
      * Cancel action method
      */
-    public function cancelAction()
-    {
+    public function cancelAction() {
+    }
+
+    public function notifyAction() {
+        /** @var PaymentResponse $response */
+        $response = $this->cryptoGateService->createPaymentResponse($this->Request());
+
+        if(empty($response->token) || empty($response->transactionId)) {
+            $this->jsonCallbackResponse(array('status' => -1, 'msg' => 'Not a valid notify request'));
+            return;
+        }
+
+        $orderDetails = $this->getCryptoOrderDetailsByUuid($response->transactionId);
+
+        if(empty($orderDetails)) {
+            $this->jsonCallbackResponse(array('status' => -2, 'msg' => 'Order not found'));
+            return;
+        }
+
+        if (!$this->cryptoGateService->isValidToken($response, $orderDetails['token'])) {
+            $this->jsonCallbackResponse(array('status' => -3, 'msg' => 'Invalid token'));
+            return;
+        }
+
+        if (!$this->cryptoGateService->validatePayment($response)) {
+            $this->jsonCallbackResponse(array('status' => -4, 'msg' => 'Callback payment could not be validated'));
+            return;
+        }
+
+        if($response->status != 'Paid') {
+            $this->jsonCallbackResponse(array('status' => -5, 'msg' => 'Status is not paid'));
+            return;
+        }
+
+        $paymentState = $response->inBlock ? $this->cryptoGateService->getPaymentStatusInBlock() : $this->cryptoGateService->getPaymentStatusMemPool();
+
+        $emailSendEnabled = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'send_paid_email');
+        $sendEmail = $paymentState == $this->cryptoGateService->getPaymentStatusInBlock() && $emailSendEnabled;
+        $this->savePaymentStatus($response->transactionId, $response->token, $paymentState, $sendEmail);
+        $this->jsonCallbackResponse(array('status' => 0, 'msg' => 'ok', 'paymentState' => $paymentState, 'token' => $response->token, 'transactionId' => $response->transactionId, 'inBlock' =>$response->inBlock));
     }
 
     /**
@@ -214,14 +252,10 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
             'action' => 'callback',
             'forceSecure' => true,
         ];
-        if($version >= '5.6') {
-            if($generateToken) {
-                $shopware_token = $this->get('Shopware\Components\Cart\PaymentTokenService')->generate();
-                $returnParameters[\Shopware\Components\Cart\PaymentTokenService::TYPE_PAYMENT_TOKEN] = $shopware_token;
-                $callbackParameters[\Shopware\Components\Cart\PaymentTokenService::TYPE_PAYMENT_TOKEN] = $shopware_token;
-            }
-
-        }
+        $notifyParameters = [
+            'action' => 'notify',
+            'forceSecure' => true,
+        ];
 
         $parameter = [
             'amount' => $this->getAmount(),
@@ -232,6 +266,7 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
             'email' => @$user['additional']['user']['email'],
             'return_url' => $router->assemble($returnParameters),
             'callback_url' => $router->assemble($callbackParameters),
+            'ipn_url' => $router->assemble($notifyParameters),
             'cancel_url' => $router->assemble(['action' => 'cancel', 'forceSecure' => true]),
             'seller_name' => Shopware()->Config()->get('company'),
             'memo' => 'Ihr Einkauf bei '.$_SERVER['SERVER_NAME']
@@ -263,19 +298,46 @@ class Shopware_Controllers_Frontend_CryptoGatePayment extends Shopware_Controlle
     /**
      * Returns the URL of the payment provider. This has to be replaced with the real payment provider URL
      *
-     * @return string
+     * @return array
      */
-    protected function getPaymentUrl()
-    {
-        /** @var CryptoGatePaymentService $service */
-        $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
-        $payment_url = $service->createPaymentUrl($this->getPaymentData(),$this->getVersion());
-        return $payment_url;
+    protected function createCryptoPayment() {
+        $payment = $this->cryptoGateService->createPayment($this->getPaymentData(),$this->getVersion());
+        return $payment;
     }
 
     public function getWhitelistedCSRFActions() {
         return [
-            'return','callback','cancel'
+            'return','callback','cancel','notify'
         ];
     }
+
+    /**
+     * returns shopware model manager
+     * @return \Shopware\Components\Model\ModelManager
+     */
+    public function getEntityManager()
+    {
+        return Shopware()->Models();
+    }
+
+    private function getCryptoOrderDetailsByUuid($uuid) {
+        $orderAttributeModel = Shopware()->Models()->getRepository('Shopware\Models\Attribute\Order')->findOneBy(array('lampscryptogateUuid' => $uuid));
+        if ($orderAttributeModel instanceof \Shopware\Models\Attribute\Order) {
+            return array(
+                'orderId' => $orderAttributeModel->getOrderId(),
+                'uuid' => $orderAttributeModel->getLampscryptogateUuid(),
+                'token' => $orderAttributeModel->getLampscryptogateToken(),
+                'url' => $orderAttributeModel->getLampscryptogateUrl()
+            );
+        }
+        return false;
+    }
+
+
+    private function jsonCallbackResponse($data) {
+        $this->cryptoGateService->logger->info('CryptoGate Callbacks: '.\json_encode($data));
+        $this->container->get('front')->Plugins()->ViewRenderer()->setNoRender(); // Disable template loading
+        echo \json_encode($data);
+    }
+
 }

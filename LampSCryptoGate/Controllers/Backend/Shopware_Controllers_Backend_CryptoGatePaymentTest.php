@@ -24,20 +24,19 @@ class Shopware_Controllers_Backend_CryptoGatePaymentTest extends \Shopware_Contr
             $service->setOverrideUrl(urldecode($_GET["apiUrl"]));
         }
 
-        $paymentUrl = $this->getPaymentUrl();
+        $paymentData = $this->getPayment();
 
 
-        if(false===$paymentUrl || filter_var($paymentUrl, FILTER_VALIDATE_URL)===false){
+        if(false===$paymentData || filter_var($paymentData['payment_url'], FILTER_VALIDATE_URL)===false){
             $this->View()->assign('response', 'Oh no! Something went wrong :(');
             if($service->getLastError()){
                 $this->View()->assign('response', $service->getLastError()->getMessage());
             }
         }
         else {
-
             /** @var PaymentResponse $response */
             $response = new \LampSCryptoGate\Components\CryptoGatePayment\PaymentResponse();
-            $response->transactionId = end(explode("/", $paymentUrl));
+            $response->transactionId = $paymentData['uuid'];
             $response->token = $service->createPaymentToken($this->getPaymentData());
 
 
@@ -68,6 +67,7 @@ class Shopware_Controllers_Backend_CryptoGatePaymentTest extends \Shopware_Contr
             'email' => "test@example.com",
             'return_url' => "__not_set__",
             'callback_url' => "__not_set__",
+            'ipn_url' => "__not_set__",
             'cancel_url' => "__not_set__",
             'seller_name' => Shopware()->Config()->get('company'),
             'memo' => ''.$_SERVER['SERVER_NAME']
@@ -77,12 +77,12 @@ class Shopware_Controllers_Backend_CryptoGatePaymentTest extends \Shopware_Contr
     }
 
 
-    protected function getPaymentUrl()
+    protected function getPayment()
     {
         /** @var CryptoGatePaymentService $service */
         $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
-        $payment_url = $service->createPaymentUrl($this->getPaymentData(),$this->getVersion());
-        return $payment_url;
+        $payment = $service->createPayment($this->getPaymentData(),$this->getVersion());
+        return $payment;
     }
 
     public function getVersion(){

@@ -4,14 +4,7 @@
 {block name='frontend_index_content'}
     <div class="example-content content custom-page--content">
         <div class="example-content--actions">
-            <a class="btn"
-               href="{url controller=checkout action=cart}"
-               title="change cart">change cart
-            </a>
-            <a class="btn is--primary right"
-               href="{url controller=checkout action=shippingPayment sTarget=checkout}"
-               title="change payment method">change payment method
-            </a>
+            <h3>Please get in touch with us to cancel your order.</h3>
         </div>
     </div>
 {/block}

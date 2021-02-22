@@ -18,4 +18,9 @@ class PaymentResponse
      * @var string
      */
     public $status;
+
+    /**
+     * @var int
+     */
+    public $inBlock;
 }

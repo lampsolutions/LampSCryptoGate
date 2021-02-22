@@ -6,8 +6,10 @@ namespace LampSCryptoGate\Components\CryptoGatePayment;
 use GuzzleHttp\Exception\RequestException;
 use http\Client\Request;
 
-class CryptoGatePaymentService
-{
+class CryptoGatePaymentService {
+    const PAYMENTSTATUSPAID = 12;
+    const PAYMENTSTATUSDELAYED = 19;
+    const PAYMENTSTATUSOPEN = 17;
     protected static $api_endpoint_verify = '/api/shopware/verify';
     protected static $api_endpoint_create = 'api/shopware/create';
     private $error=null;
@@ -16,7 +18,7 @@ class CryptoGatePaymentService
     private $overrideToken=false;
 
     /**
-     * @var $logger Logger
+     * @var $logger \Shopware\Components\Logger
      */
     public $logger;
 
@@ -59,6 +61,17 @@ class CryptoGatePaymentService
         return $response;
     }
 
+    public function getPaymentStatusMemPool() {
+        if(Shopware()->Config()->getByNamespace('LampsCryptoGate', 'wait_in_block')===true) {
+            return self::PAYMENTSTATUSDELAYED;
+        }
+        return self::PAYMENTSTATUSPAID;
+    }
+
+    public function getPaymentStatusInBlock() {
+        return self::PAYMENTSTATUSPAID;
+    }
+
     /**
      * @param PaymentResponse $response
      * @param string $token
@@ -77,11 +90,12 @@ class CryptoGatePaymentService
     {
         unset($payment_data["return_url"]);
         unset($payment_data["callback_url"]);
+        unset($payment_data["ipn_url"]);
 
         return sha1(implode('|', $payment_data));
     }
 
-    public function createPaymentUrl($parameters=array(),$version) {
+    public function createPayment($parameters=array(),$version) {
 
 
         $api_url = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_url');
@@ -136,10 +150,10 @@ class CryptoGatePaymentService
         }
 
 
-        return json_decode($response->getBody(), true)['payment_url'];
+        return json_decode($response->getBody(), true);
     }
 
-    public function validatePayment(PaymentResponse $paymentResponse) {
+    public function validatePayment(PaymentResponse &$paymentResponse) {
         $api_url = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_url');
         if($this->overrideUrl){
             $api_url=$this->overrideUrl;
@@ -181,6 +195,9 @@ class CryptoGatePaymentService
         $verify = json_decode($response->getBody(), true);
 
         if($verify['token'] == $paymentResponse->token && !empty($paymentResponse->token) && !empty($verify['token'])) {
+            if(isset($verify['inBlock'])) {
+                $paymentResponse->inBlock = $verify['inBlock'];
+            }
             return true;
         }
 
