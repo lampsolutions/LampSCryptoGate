@@ -8,6 +8,7 @@ use Shopware\Components\Plugin\Context\ActivateContext;
 use Shopware\Components\Plugin\Context\DeactivateContext;
 use Shopware\Components\Plugin\Context\InstallContext;
 use Shopware\Components\Plugin\Context\UninstallContext;
+use Shopware\Components\Plugin\Context\UpdateContext;
 use Shopware\Models\Payment\Payment;
 
 class LampSCryptoGate extends Plugin
@@ -136,6 +137,20 @@ class LampSCryptoGate extends Plugin
     {
         $this->setActiveFlag($context->getPlugin()->getPayments(), true);
         $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
+    }
+
+    public function update(UpdateContext $updateContext) {
+        $currentVersion = $updateContext->getCurrentVersion();
+        $updateVersion = $updateContext->getUpdateVersion();
+
+        if (version_compare($currentVersion, '1.2.0', '<=')) {
+            /** @var CrudService $crudService */
+            $crudService = $this->container->get('shopware_attribute.crud_service');
+            $crudService->update('s_order_attributes', 'lampscryptogate_token', 'string');
+            $crudService->update('s_order_attributes', 'lampscryptogate_uuid', 'string');
+            $crudService->update('s_order_attributes', 'lampscryptogate_url', 'string');
+            Shopware()->Models()->generateAttributeModels(array('s_order_attributes'));
+        }
     }
 
     /**
