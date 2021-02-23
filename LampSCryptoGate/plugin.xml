@@ -4,13 +4,18 @@
 
     <label lang="en">CryptoGate Payment</label>
     <label lang="de">CryptoGate Payment</label>
-    <version>1.1.2</version>
+    <version>1.2.0</version>
     <copyright>LAMP solutions GmbH</copyright>
     <link>https://www.lamp-solutions.de</link>
     <license>MIT</license>
     <author>LAMP solutions GmbH</author>
 
-    <compatibility minVersion="5.2.7"/>
+    <compatibility minVersion="5.5.0"/>
+
+    <changelog version="1.2.0">
+        <changes lang="de">Neu hinzugefügte Funktionen unter anderem Double Spend Schutz, Iframe Zahlungsdarstellung, E-Mail Bezahllink</changes>
+        <changes lang="en">New features added including double spend protection, iframe payment display, email payment link</changes>
+    </changelog>
 
     <changelog version="1.1.2">
         <changes lang="de">Shopware 5.7 Kompatibilität</changes>
