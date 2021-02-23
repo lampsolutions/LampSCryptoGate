@@ -86,7 +86,7 @@
             <description lang="de">Benötigt unter Umständen einen Auftragsdatenverarbeitungsvertrag (=AVV) von Deinem Dienstleister. Solltest Du das CryptoPanel nutzen, kannst Du den AVV hier  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;link&lt;/a&gt; abschließen.</description>
             <description lang="en">May require an Data Processing Agreement (DPA) with your service provider. In case you are using CryptoPanel, you can request an DPA  &lt;a href =&#39;https://www.cryptopanel.de/&#39;&gt;here&lt;/a&gt;.</description>
         </element>
-        <element type="button">
+        <element type="button" scope="locale">
             <name>buttonTest</name>
             <label lang="de">Zugangsdaten prüfen</label>
             <label lang="en">Validate credentials</label>
@@ -103,10 +103,14 @@
                             data.push( input[z].id );
                         }
 
+                        if(document.getElementById(data[1]).disabled) {
+                            Shopware.Msg.createGrowlMessage('Plugin Manager', 'Please use main shop to test credentials.');
+                            return;
+                        }
+
                       Ext.Ajax.request({
                         url: 'CryptoGatePaymentCheck/test?apiToken='+ document.getElementById(data[1]).value + '&apiUrl=' + encodeURI(document.getElementById(data[0]).value),
                         success: function (response) {
-                          console.log(response);
                           Shopware.Msg.createGrowlMessage(response.statusText, response.responseText)
                         },
                         failure: function (response) {
