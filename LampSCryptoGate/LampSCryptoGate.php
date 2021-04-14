@@ -151,8 +151,52 @@ class LampSCryptoGate extends Plugin
             $crudService->update('s_order_attributes', 'lampscryptogate_url', 'string');
             Shopware()->Models()->generateAttributeModels(array('s_order_attributes'));
         }
+
+        $this->checkIntegration();
     }
 
+    private function getVersion() {
+        /** @var \Shopware\Components\Plugin $plugin */
+        $plugin = $this->container->get('kernel')->getPlugins()['LampSCryptoGate'];
+        $filename = $plugin->getPath() . '/plugin.xml';
+        $xml = simplexml_load_file($filename);
+        return (string)$xml->version;
+    }
+
+    private function checkIntegration() {
+        $api_url = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_url');
+        $api_key = Shopware()->Config()->getByNamespace('LampsCryptoGate', 'api_token');
+
+        if(empty($api_url) || empty($api_key)){
+            return;
+        }
+
+        try {
+            /**
+             * @var $service \LampSCryptoGate\Components\CryptoGatePayment\CryptoGatePaymentService
+             */
+            $service = $this->container->get('crypto_gate.crypto_gate_payment_service');
+
+            $paymentDataParams =  [
+                'amount' => 1.00,
+                'currency' => "EUR",
+                'first_name' => "first_name",
+                'last_name' => "last_name",
+                'payment_id' => 42,
+                'email' => "test@example.com",
+                'return_url' => "__not_set__",
+                'callback_url' => "__not_set__",
+                'ipn_url' => "__not_set__",
+                'cancel_url' => "__not_set__",
+                'seller_name' => Shopware()->Config()->get('company'),
+                'memo' => ''.$_SERVER['SERVER_NAME']
+            ];
+
+            $paymentData = $service->createPayment($paymentDataParams, $this->getVersion());
+        } catch (\Exception $e) {
+
+        }
+    }
     /**
      * @param Payment[] $payments
      * @param $active bool
@@ -179,7 +223,6 @@ class LampSCryptoGate extends Plugin
         $request = $subject->Request();
         $view = $subject->View();
 
-
         if ($request->getControllerName() === 'checkout' && $request->getActionName() === 'cart') {
             $error = $request->has('CouldNotConnectToCryptoGate') ? (int) $request->get('CouldNotConnectToCryptoGate') : null;
 
@@ -188,7 +231,6 @@ class LampSCryptoGate extends Plugin
             }
 
         }
-
 
         $this->container->get('template')->addTemplateDir(
             $this->getPath() . '/Resources/views/'

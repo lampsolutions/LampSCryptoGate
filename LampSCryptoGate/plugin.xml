@@ -4,13 +4,18 @@
 
     <label lang="en">CryptoGate Payment</label>
     <label lang="de">CryptoGate Payment</label>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <copyright>LAMP solutions GmbH</copyright>
     <link>https://www.lamp-solutions.de</link>
     <license>MIT</license>
     <author>LAMP solutions GmbH</author>
 
     <compatibility minVersion="5.5.0"/>
+
+    <changelog version="1.2.1">
+        <changes lang="de">Unterstützung für zukünftige CryptoGate Versionen integrieren</changes>
+        <changes lang="en">Integrate support compatiblity with future CryptoGate versions</changes>
+    </changelog>
 
     <changelog version="1.2.0">
         <changes lang="de">Neu hinzugefügte Funktionen unter anderem Double Spend Schutz, Iframe Zahlungsdarstellung, E-Mail Bezahllink</changes>
